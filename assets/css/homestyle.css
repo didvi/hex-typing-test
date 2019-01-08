@@ -1,0 +1,128 @@
+html {
+    margin: 0px;
+    background-color: #2F3E46;
+    cursor: default;
+    font-family: 'Inconsolata', monospace;
+}
+
+body {
+    margin: 0;
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#navbar {
+    /* background-color: #8FA89B; */
+    width: 100%;
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#timer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #819D96;
+    height: 100%;
+    width: 160px;
+    color: #2F3E46;
+    font-size: 38px;
+    text-align: center;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #CAD2C5;
+    height: 100%;
+    color: #2F3E46;
+    text-decoration: none;
+    font-family: 'Inconsolata', monospace;
+    font-size: 30px;
+    margin-right: 20px;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+
+#text {
+    width: 80%;
+    height: 220px;
+    margin: 60px;
+    margin-bottom: 80px;
+}
+
+#text p {
+    position: relative;
+    top: -260px;
+    left: 2px;
+    font-size: 32px;
+    line-height: 1.2;
+    z-index: 2;
+    color: #819D96;
+    opacity: 0.6;
+}
+
+#typingbox {
+    width: 100%;
+    height: 223px;
+    border: none;
+    background-color: transparent;
+    color: #819D96;
+    font-family: 'Inconsolata', monospace;
+    font-size: 32px;
+    line-height: 1.2;
+    z-index: 1;
+}
+
+#typingbox:focus {
+    outline: none;
+}
+
+.rows {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.hexagon {
+    height: 86px;
+    width: auto;
+    object-fit: contain;
+    display: grid;
+    opacity: 0.8;
+}
+  
+.hexagon img, .keys {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.hexagon img {
+    max-height: 100%;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    transform: rotate(90deg);
+}
+
+.keys {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    font-family: 'Inconsolata', monospace;
+    font-size: 22px;
+    color: #12171A;
+}
