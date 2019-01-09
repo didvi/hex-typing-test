@@ -69,6 +69,13 @@ body {
     z-index: 2;
     color: #819D96;
     opacity: 0.6;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
 }
 
 #typingbox {
@@ -81,6 +88,13 @@ body {
     font-size: 32px;
     line-height: 1.2;
     z-index: 1;
+    resize: none;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #typingbox:focus {
@@ -98,7 +112,6 @@ body {
     width: auto;
     object-fit: contain;
     display: grid;
-    opacity: 0.8;
 }
   
 .hexagon img, .keys {
