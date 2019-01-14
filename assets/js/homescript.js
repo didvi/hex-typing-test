@@ -11,6 +11,19 @@ $(document).ready(function()  {
                   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"],
                     ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/']];
     
+    
+    const colorCurrentWord = "#dddddd";
+    const colorCorrectWord = "#93C572";
+    const colorIncorrectWord = "#e50000";
+
+    // test data
+    let wordData = {
+        seconds: 0,
+        correct: 0,
+        incorrect: 0,
+        total: 0,
+        wpm: 0
+    };
 
     function assignKeyboard(type) {
         for (i = 0; i < type.length; i++) { 
@@ -24,16 +37,20 @@ $(document).ready(function()  {
     assignKeyboard(currentKeyboard);
 
     const typingText = ["In the eleven years that separated the Declaration of the Independence of the United States from the completion of that act in the ordination of our written Constitution, the great minds of America were bent upon the study of the principles of government that were essential to the preservation of the liberties which had been won at great cost and with heroic labors and sacrifices.", 
-                        "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defense, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America."];
+                        "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defense, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.",
+                        "We the People of the United States, in Order to form"];
 
     /* choose random text from typingText array and assign a maxlength for the textarea */
     function assignText() {
         let text = typingText[Math.floor(Math.random() * typingText.length)];
         $('#text p').text(text);
         $("#typingbox").attr('maxlength', text.length);
+        wordData['total'] = text.split(' ').length;
+        console.log(wordData['total']);
     }
     
     assignText()
+
     
     /* begin functionality for the typing effects on hexagonal keyboard */
     function hexChanger(keyOpacity) {
@@ -66,26 +83,15 @@ $(document).ready(function()  {
         also maybe make the key opacity change for a set amount of time
     */
 
-    const colorCurrentWord = "#dddddd";
-    const colorCorrectWord = "#93C572";
-    const colorIncorrectWord = "#e50000";
-
-    // test data
-    let wordData = {
-        seconds: 60,
-        correct: 0,
-        incorrect: 0,
-        total: 0,
-        typed: 0
-    };
-
     // Changes the display value of an element from none to the onSetting. If not on none, changes it to none
-    function toggleDisplay(elemId, onSetting) {
+    function toggleDisplay(elemId, onSetting='initial') {
         if ($(elemId).css('display') === 'none') {
             $(elemId).css('display', onSetting);
         } else {
             $(elemId).css('display', 'none');
         }
+        console.log(wordData)
+
     } 
 
     /* checks if the last character typed in the textarea is correct and updates the wordData accordingly.
@@ -97,23 +103,42 @@ $(document).ready(function()  {
         let currentLetter = typed[typed.length - 1];
         let correctText = $('#text p').text();
 
-        // display results after text is completed
+        // display results after text is completed and remove textarea
         if (typed.length === correctText.length) {
             toggleDisplay('#resultbox', 'flex');
-            //TODO probably should do something else like remove the textarea
+            calculateResults(correctText, typed);
+            $('#text').css('visibility', 'hidden');
+            //TODO: do something else like remove the textarea
         }
 
         // check if last letter typed is correct
         if (currentLetter !== correctText[typed.length - 1]) {
             $('#typingbox').css('text-decoration', 'underline #F26D60');
-            //TODO needs to add data to the dictionary
-            console.log('wrong');
         } else {
             $('#typingbox').css('text-decoration', 'none');
-            //TODO needs to add data to the dictionary
-            console.log('right')
         }
     }
+
+
+    function calculateResults(correctText, typedText) {
+        // parse text
+        let correctWords = correctText.split(' ');
+        let maybeCorrectWords = typedText.split(' ');        
+        let wordsCorrect = 0;
+
+
+        for (let i = 0; i < correctWords.length; i++) {
+            if (correctWords[i] === maybeCorrectWords[i]) {
+                wordsCorrect++
+            }
+        }
+
+        wordData['correct'] = wordsCorrect
+        wordData['incorrect'] = wordData['total'] - wordData['correct'];
+        wordData['wpm'] = Math.round((wordData['total'] / (wordData['seconds'] / 60)));
+
+        document.getElementById("resultbox").firstElementChild.innerHTML = `Total time: ${wordData['seconds']} seconds <br> WPM: ${wordData['wpm']}<br> Errors: ${wordData['incorrect']}<br>`;
+    };
 
     // adds the checkLetter function to the textbox as an event listener
     var textArea = document.querySelector('textarea');
@@ -121,6 +146,17 @@ $(document).ready(function()  {
     
     
     //shows result box at the moment but should show options- not in html yet    
-    $("#options").click(function () { toggleDisplay('#resultbox', 'flex')});
+    $("#options").click(function () {toggleDisplay('#resultbox', 'flex')});
+
+    //create timer function
+    let timerOn = false;
+    function isTimer() {
+        if (timerOn === false) {
+            window.setInterval(() => {wordData['seconds']++ ;}, 1000);
+            timerOn = true;
+        }
+    }
+    textArea.addEventListener('input', isTimer, false); 
+
 
 });
