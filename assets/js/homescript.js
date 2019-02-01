@@ -6,15 +6,10 @@ $(document).ready(function()  {
                     ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'"],
                         ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/"]]; 
 
-    const higherQWERTY = [['`','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    const qwertyShift = [['`','1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
                 ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'],
                   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"],
                     ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/']];
-    
-    
-    const colorCurrentWord = "#dddddd";
-    const colorCorrectWord = "#93C572";
-    const colorIncorrectWord = "#e50000";
 
     // test data
     let wordData = {
@@ -33,7 +28,8 @@ $(document).ready(function()  {
             }
         }
     }
-    let currentKeyboard = qwerty
+    let currentKeyboard = qwerty;
+    let currentKeyboardShift = qwertyShift;
     assignKeyboard(currentKeyboard);
 
     const typingText = ["In the eleven years that separated the Declaration of the Independence of the United States from the completion of that act in the ordination of our written Constitution, the great minds of America were bent upon the study of the principles of government that were essential to the preservation of the liberties which had been won at great cost and with heroic labors and sacrifices.", 
@@ -49,37 +45,52 @@ $(document).ready(function()  {
         console.log(wordData['total']);
     }
     
-    assignText()
+    assignText();
 
     
     /* begin functionality for the typing effects on hexagonal keyboard */
-    function hexChanger(keyOpacity) {
+    function hexChanger(keyOpacity, keyboard) {
         return event => {
             let keyName = event.key;
 
-            for (i = 0; i < currentKeyboard.length; i++) { 
-                for (n = 0; n < currentKeyboard[i].length; n++) {
-                    if (currentKeyboard[i][n] === String(keyName)) {
+            for (i = 0; i < keyboard.length; i++) { 
+                for (n = 0; n < keyboard[i].length; n++) {
+                    if (keyboard[i][n] === String(keyName) || keyboard[i][n].toUpperCase() === String(keyName)) {
                         hexId = String(n) + "row" + String(i);
                         document.getElementById(hexId).parentNode.style.opacity = keyOpacity;
                     }
                 }
             }
-
         }
     };
 
-    let onKeyDown = hexChanger('0.1');
-    let onKeyUp = hexChanger('1');
+    //TODO: add fucntionality for caps-lock
+    // Keyup event that changes keyboard if shift key is pressed
+    function shiftDown(e) {
+        if (e.keyCode == 16) {
+            assignKeyboard(currentKeyboardShift);
+        }
+    }
+    
+    // Keyup event that changes keyboard if shift key is let go
+    function shiftUp(e) {
+        if (e.keyCode == 16) {
+            assignKeyboard(currentKeyboard);
+        }
+    }
+
+    document.addEventListener('keydown', shiftDown, false);
+    document.addEventListener('keyup', shiftUp, false);
+
+    let onKeyDown = hexChanger('0.1', qwerty);
+    let onKeyUp = hexChanger('1', qwerty);
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
 
-    /* need to add timer functionality, add another function for eventlistening-but only fires once?
-        can use $('#typingbox').value to get whatever is entered into the textarea
-        needs to check value against the text in '#text p' and change color of word when incorrect
-        timer ends when the textarea reaches max number of characters.
+    
 
-        also needs functionality for multiple keyboards and uppercase letters
+
+    /* TODO: need to add functionality for multiple keyboards
         also maybe make the key opacity change for a set amount of time
     */
 
@@ -103,10 +114,12 @@ $(document).ready(function()  {
         let currentLetter = typed[typed.length - 1];
         let correctText = $('#text p').text();
 
-        // display results after text is completed and remove textarea
+        // display results after text is completed and remove textarea and navbar
         if (typed.length === correctText.length) {
             toggleDisplay('#resultbox', 'flex');
             calculateResults(correctText, typed);
+            
+            $('#navbar').css('visibility', 'hidden');
             $('#text').css('visibility', 'hidden');
             //TODO: do something else like remove the textarea
         }
@@ -148,15 +161,43 @@ $(document).ready(function()  {
     //shows result box at the moment but should show options- not in html yet    
     $("#options").click(function () {toggleDisplay('#resultbox', 'flex')});
 
-    //create timer function
+    //timer function for wpm calculation and display in timer box
     let timerOn = false;
-    function isTimer() {
+    function setTimer() {
         if (timerOn === false) {
-            window.setInterval(() => {wordData['seconds']++ ;}, 1000);
+            window.setInterval(() => {
+                wordData['seconds']++;
+                minutes = String(Math.floor(wordData['seconds'] / 60));
+                if (wordData['seconds'] % 60 < 10) {
+                    seconds = '0' + String(wordData['seconds'] % 60);
+                } else {
+                    seconds = String(wordData['seconds'] % 60);
+                }
+
+                timeInMinutes = minutes + ':' + seconds;
+                document.getElementById("timer").innerHTML = timeInMinutes;
+            }, 1000);
             timerOn = true;
         }
     }
-    textArea.addEventListener('input', isTimer, false); 
+    textArea.addEventListener('input', setTimer, false); 
 
 
+    /* begin functionality for restart and options buttons */
+    $('#restart').click(function () {resetTest();});
+    function resetTest() {
+        wordData = {
+            seconds: 0,
+            correct: 0,
+            incorrect: 0,
+            total: 0,
+            wpm: 0
+        };
+        assignText();
+        timerOn = false;
+        document.getElementById('timer').innerHTML = '0:00';
+        toggleDisplay('#resultbox', 'flex');
+        $('#typingbox').focus();
+
+    }
 });
